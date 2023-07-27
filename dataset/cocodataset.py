@@ -8,6 +8,8 @@ from pycocotools.coco import COCO
 
 from utils.utils import *
 
+import cv2
+
 
 class COCODataset(Dataset):
     """
@@ -94,6 +96,7 @@ class COCODataset(Dataset):
 
         img, info_img = preprocess(img, self.img_size, jitter=self.jitter,
                                    random_placing=self.random_placing)
+        # cv2.imwrite('img.jpg', img)
 
         if self.random_distort:
             img = random_distort(img, self.hue, self.saturation, self.exposure)

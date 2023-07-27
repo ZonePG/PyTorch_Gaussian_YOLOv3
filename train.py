@@ -54,7 +54,7 @@ def main():
 
     # Parse config settings
     with open(args.cfg, 'r') as f:
-        cfg = yaml.load(f)
+        cfg = yaml.safe_load(f)
 
     print("successfully loaded config file: ", cfg)
 
@@ -116,7 +116,7 @@ def main():
 
     imgsize = cfg['TRAIN']['IMGSIZE']
     dataset = COCODataset(model_type=cfg['MODEL']['TYPE'],
-                  data_dir='COCO/',
+                  data_dir='/home/zonepg/datasets/coco/',
                   img_size=imgsize,
                   augmentation=cfg['AUGMENTATION'],
                   debug=args.debug)
@@ -126,12 +126,12 @@ def main():
     dataiterator = iter(dataloader)
 
     evaluator = COCOAPIEvaluator(model_type=cfg['MODEL']['TYPE'],
-                    data_dir='COCO/',
+                    data_dir='/home/zonepg/datasets/coco/',
                     img_size=cfg['TEST']['IMGSIZE'],
                     confthre=cfg['TEST']['CONFTHRE'],
                     nmsthre=cfg['TEST']['NMSTHRE'])
 
-    dtype = torch.cuda.FloatTensor if cuda else torch.FloatTensor
+    device = torch.device("cuda" if cuda else "cpu")
 
     # optimizer setup
     # set weight decay only on conv.weight
@@ -158,7 +158,8 @@ def main():
     for iter_i in range(iter_state, iter_size + 1):
 
         # COCO evaluation
-        if iter_i % args.eval_interval == 0:
+        if iter_i % args.eval_interval == 0 and False:
+        # if iter_i % args.eval_interval == 0:
             print('evaluating...')
             ap = evaluator.evaluate(model)
             model.train()
@@ -179,13 +180,13 @@ def main():
             except StopIteration:
                 dataiterator = iter(dataloader)
                 imgs, targets, _, _ = next(dataiterator)  # load a batch
-            imgs = Variable(imgs.type(dtype))
-            targets = Variable(targets.type(dtype), requires_grad=False)
+            imgs = imgs.to(device)
+            targets = targets.to(device)
             loss = model(imgs, targets)
             loss.backward()
 
         if gradient_clip >= 0:
-            torch.nn.utils.clip_grad_norm(model.parameters(), gradient_clip)
+            torch.nn.utils.clip_grad_norm_(model.parameters(), gradient_clip)
 
         optimizer.step()
         scheduler.step()

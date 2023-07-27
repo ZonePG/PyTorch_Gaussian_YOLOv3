@@ -77,7 +77,7 @@ class YOLOLayer(nn.Module):
         batchsize = output.shape[0]
         fsize = output.shape[2]
         n_ch = 5 + self.n_classes  # channels per anchor w/o xywh unceartainties
-        dtype = torch.cuda.FloatTensor if xin.is_cuda else torch.FloatTensor
+        # dtype = torch.cuda.FloatTensor if xin.is_cuda else torch.FloatTensor
 
         output = output.view(batchsize, self.n_anchors, -1, fsize, fsize)
         output = output.permute(0, 1, 3, 4, 2)  # shape: [batch, anchor, grid_y, grid_x, channels_per_anchor]
@@ -96,17 +96,17 @@ class YOLOLayer(nn.Module):
 
         # calculate pred - xywh obj cls
 
-        x_shift = dtype(np.broadcast_to(
-            np.arange(fsize, dtype=np.float32), output.shape[:4]))
-        y_shift = dtype(np.broadcast_to(
-            np.arange(fsize, dtype=np.float32).reshape(fsize, 1), output.shape[:4]))
+        x_shift = torch.tensor(np.broadcast_to(
+            np.arange(fsize, dtype=np.float32), output.shape[:4]), device=xin.device)
+        y_shift = torch.tensor(np.broadcast_to(
+            np.arange(fsize, dtype=np.float32).reshape(fsize, 1), output.shape[:4]), device=xin.device)
 
         masked_anchors = np.array(self.masked_anchors)
 
-        w_anchors = dtype(np.broadcast_to(np.reshape(
-            masked_anchors[:, 0], (1, self.n_anchors, 1, 1)), output.shape[:4]))
-        h_anchors = dtype(np.broadcast_to(np.reshape(
-            masked_anchors[:, 1], (1, self.n_anchors, 1, 1)), output.shape[:4]))
+        w_anchors = torch.tensor(np.broadcast_to(np.reshape(
+            masked_anchors[:, 0], (1, self.n_anchors, 1, 1)), output.shape[:4]), device=xin.device)
+        h_anchors = torch.tensor(np.broadcast_to(np.reshape(
+            masked_anchors[:, 1], (1, self.n_anchors, 1, 1)), output.shape[:4]), device=xin.device)
 
         pred = output.clone()
         pred[..., 0] += x_shift
@@ -116,11 +116,11 @@ class YOLOLayer(nn.Module):
 
         if labels is None:  # not training
             pred[..., :4] *= self.stride
-            pred = pred.view(batchsize, -1, n_ch)  # shsape: [batch, anchor x grid_y x grid_x, n_class + 5]
+            pred = pred.reshape(batchsize, -1, n_ch)  # shsape: [batch, anchor x grid_y x grid_x, n_class + 5]
 
             if self.gaussian:
                 # scale objectness confidence with xywh uncertainties
-                sigma_xywh = sigma_xywh.view(batchsize, -1, 4)  # shsape: [batch, anchor x grid_y x grid_x, 4]
+                sigma_xywh = sigma_xywh.reshape(batchsize, -1, 4)  # shsape: [batch, anchor x grid_y x grid_x, 4]
                 sigma = sigma_xywh.mean(dim=-1)
                 pred[..., 4] *= (1.0 - sigma)
 
@@ -139,14 +139,14 @@ class YOLOLayer(nn.Module):
         # target assignment
 
         tgt_mask = torch.zeros(batchsize, self.n_anchors,
-                               fsize, fsize, 4 + self.n_classes).type(dtype)
+                               fsize, fsize, 4 + self.n_classes).to(xin.device)
         obj_mask = torch.ones(batchsize, self.n_anchors,
-                              fsize, fsize).type(dtype)
+                              fsize, fsize).to(xin.device)
         tgt_scale = torch.zeros(batchsize, self.n_anchors,
-                                fsize, fsize, 2).type(dtype)
+                                fsize, fsize, 2).to(xin.device)
 
         target = torch.zeros(batchsize, self.n_anchors,
-                             fsize, fsize, n_ch).type(dtype)
+                             fsize, fsize, n_ch).to(xin.device)
 
         labels = labels.cpu().data
         nlabel = (labels.sum(dim=2) > 0).sum(dim=1)  # number of objects
@@ -162,7 +162,7 @@ class YOLOLayer(nn.Module):
             n = int(nlabel[b])
             if n == 0:
                 continue
-            truth_box = dtype(np.zeros((n, 4)))
+            truth_box = torch.tensor(np.zeros((n, 4))).to(xin.device)
             truth_box[:n, 2] = truth_w_all[b, :n]
             truth_box[:n, 3] = truth_h_all[b, :n]
             truth_i = truth_i_all[b, :n]
@@ -179,12 +179,12 @@ class YOLOLayer(nn.Module):
             truth_box[:n, 1] = truth_y_all[b, :n]
 
             pred_ious = bboxes_iou(
-                pred[b].view(-1, 4), truth_box, xyxy=False)
+                pred[b].reshape(-1, 4), truth_box, xyxy=False)
             pred_best_iou, _ = pred_ious.max(dim=1)
             pred_best_iou = (pred_best_iou > self.ignore_thre)
-            pred_best_iou = pred_best_iou.view(pred[b].shape[:3])
+            pred_best_iou = pred_best_iou.reshape(pred[b].shape[:3])
             # set mask to zero (ignore) if pred matches truth
-            obj_mask[b] = 1 - pred_best_iou
+            obj_mask[b] = ~pred_best_iou
 
             if sum(best_n_mask) == 0:
                 continue

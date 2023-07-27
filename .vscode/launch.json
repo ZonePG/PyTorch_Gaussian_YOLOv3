@@ -1,0 +1,25 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: train",
+            "type": "python",
+            "request": "launch",
+            "program": "train.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": [
+                "--cfg=config/gaussian_yolov3_default.cfg",
+                "--weights_path=weights/darknet53.conv.74",
+                "--n_cpu=0",
+                "--checkpoint_interval=1000",
+                "--eval_interval=4000",
+                "--tfboard_dir=./log",
+                "--debug"
+            ]
+        }
+    ]
+}
