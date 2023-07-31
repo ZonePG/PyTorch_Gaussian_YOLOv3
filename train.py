@@ -3,9 +3,11 @@ from __future__ import division
 from utils.utils import *
 from utils.seed import set_seed, setup_cudnn
 from utils.cocoapi_evaluator import COCOAPIEvaluator
+from utils.kittiapi_evaluator import KITTIAPIEvaluator
 from utils.parse_yolo_weights import parse_yolo_weights
 from models.yolov3 import *
 from dataset.cocodataset import *
+from dataset.kittidataset import *
 
 import os
 import argparse
@@ -115,8 +117,13 @@ def main():
     model.train()
 
     imgsize = cfg['TRAIN']['IMGSIZE']
-    dataset = COCODataset(model_type=cfg['MODEL']['TYPE'],
-                  data_dir='/home/zonepg/datasets/coco/',
+    # dataset = COCODataset(model_type=cfg['MODEL']['TYPE'],
+    #               data_dir='/home/zonepg/datasets/coco/',
+    #               img_size=imgsize,
+    #               augmentation=cfg['AUGMENTATION'],
+    #               debug=args.debug)
+    dataset = KITTIDataset(model_type=cfg['MODEL']['TYPE'],
+                  data_dir='/home/zonepg/datasets/KITTI/',
                   img_size=imgsize,
                   augmentation=cfg['AUGMENTATION'],
                   debug=args.debug)
@@ -125,8 +132,13 @@ def main():
         dataset, batch_size=batch_size, shuffle=True, num_workers=args.n_cpu)
     dataiterator = iter(dataloader)
 
-    evaluator = COCOAPIEvaluator(model_type=cfg['MODEL']['TYPE'],
-                    data_dir='/home/zonepg/datasets/coco/',
+    # evaluator = COCOAPIEvaluator(model_type=cfg['MODEL']['TYPE'],
+    #                 data_dir='/home/zonepg/datasets/coco/',
+    #                 img_size=cfg['TEST']['IMGSIZE'],
+    #                 confthre=cfg['TEST']['CONFTHRE'],
+    #                 nmsthre=cfg['TEST']['NMSTHRE'])
+    evaluator = KITTIAPIEvaluator(model_type=cfg['MODEL']['TYPE'],
+                    data_dir='/home/zonepg/datasets/KITTI/',
                     img_size=cfg['TEST']['IMGSIZE'],
                     confthre=cfg['TEST']['CONFTHRE'],
                     nmsthre=cfg['TEST']['NMSTHRE'])
@@ -158,8 +170,8 @@ def main():
     for iter_i in range(iter_state, iter_size + 1):
 
         # COCO evaluation
-        if iter_i % args.eval_interval == 0 and False:
-        # if iter_i % args.eval_interval == 0:
+        # if iter_i % args.eval_interval == 0 and False:
+        if iter_i % args.eval_interval == 0:
             print('evaluating...')
             ap = evaluator.evaluate(model)
             model.train()
@@ -176,10 +188,10 @@ def main():
         optimizer.zero_grad()
         for inner_iter_i in range(subdivision):
             try:
-                imgs, targets, _, _ = next(dataiterator)  # load a batch
+                imgs, targets, _, ids = next(dataiterator)  # load a batch
             except StopIteration:
                 dataiterator = iter(dataloader)
-                imgs, targets, _, _ = next(dataiterator)  # load a batch
+                imgs, targets, _, ids = next(dataiterator)  # load a batch
             imgs = imgs.to(device)
             targets = targets.to(device)
             loss = model(imgs, targets)

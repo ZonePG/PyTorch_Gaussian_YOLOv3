@@ -5,6 +5,14 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
             "name": "Python: train",
             "type": "python",
             "request": "launch",
@@ -12,13 +20,13 @@
             "console": "integratedTerminal",
             "justMyCode": true,
             "args": [
-                "--cfg=config/gaussian_yolov3_default.cfg",
+                "--cfg=config/gaussian_yolov3_kitti_default.cfg",
                 "--weights_path=weights/darknet53.conv.74",
-                "--n_cpu=0",
+                "--n_cpu=8",
                 "--checkpoint_interval=1000",
                 "--eval_interval=4000",
                 "--tfboard_dir=./log",
-                "--debug"
+                // "--debug"
             ]
         }
     ]
