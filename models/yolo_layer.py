@@ -158,10 +158,10 @@ class YOLOLayer(nn.Module):
         truth_i_all = truth_x_all.to(torch.int16).numpy()
         truth_j_all = truth_y_all.to(torch.int16).numpy()
 
-        truth_i_all[truth_i_all > fsize- 1] = fsize - 1
-        truth_j_all[truth_j_all > fsize- 1] = fsize - 1
-        truth_w_all[truth_w_all > fsize -1] = fsize - 1
-        truth_h_all[truth_h_all > fsize - 1] = fsize - 1
+        # truth_i_all[truth_i_all > fsize- 1] = fsize - 1
+        # truth_j_all[truth_j_all > fsize- 1] = fsize - 1
+        # truth_w_all[truth_w_all > fsize -1] = fsize - 1
+        # truth_h_all[truth_h_all > fsize - 1] = fsize - 1
 
         for b in range(batchsize):
             n = int(nlabel[b])
