@@ -43,7 +43,7 @@ def label2cocojson(stage_file_list, stage, anno_path, label_path, src_images_pat
             annotation_json["image_id"] = int(file)
             annotation_json["bbox"] = [xmin, ymin, width, height]
             annotation_json["category_id"] = category_name2id[obj[0]]
-            annotation_json["id"] = int(file) << 2 + i
+            annotation_json["id"] = int(file) * 100 + i
             dataset["annotations"].append(annotation_json)
 
     with open(json_name, "w") as f:
@@ -78,11 +78,11 @@ def main():
         stage_file_list = open(stage_path, "r").readlines()
         stage_file_list = [file.strip() for file in stage_file_list]
         # copy image
-        for file in stage_file_list:
-            src_file = os.path.join(src_images_path, file + ".jpg")
-            image = cv2.imread(src_file)
-            dst_file = os.path.join(src_path, stage + "2017", file + ".jpg")
-            cv2.imwrite(dst_file, image)
+        # for file in stage_file_list:
+        #     src_file = os.path.join(src_images_path, file + ".jpg")
+        #     image = cv2.imread(src_file)
+        #     dst_file = os.path.join(src_path, stage + "2017", file + ".jpg")
+        #     cv2.imwrite(dst_file, image)
 
         # make annotation
         label2cocojson(stage_file_list, stage, anno_path, label_path, src_images_path)
