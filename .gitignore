@@ -495,3 +495,5 @@ healthchecksdb
 MigrationBackup/
 
 # End of https://www.gitignore.io/api/python,virtualenv,visualstudio,jupyternotebooks
+
+checkpoints*
