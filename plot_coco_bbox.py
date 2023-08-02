@@ -3,8 +3,8 @@ from pycocotools.coco import COCO
 from PIL import Image,ImageDraw
 import matplotlib.pyplot as plt
  
-json_path = "/home/zonepg/datasets/KITTI/annotations/instances_train2017.json"
-img_path = "/home/zonepg/datasets/KITTI/train2017"
+json_path = "/home/zonepg/datasets/kitti/annotations/instances_train2017.json"
+img_path = "/home/zonepg/datasets/kitti/train2017"
  
 # load coco data
 coco = COCO(annotation_file=json_path)

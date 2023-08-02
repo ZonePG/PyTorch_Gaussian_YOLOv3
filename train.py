@@ -123,7 +123,7 @@ def main():
     #               augmentation=cfg['AUGMENTATION'],
     #               debug=args.debug)
     dataset = KITTIDataset(model_type=cfg['MODEL']['TYPE'],
-                  data_dir='/home/zonepg/datasets/KITTI/',
+                  data_dir='/home/zonepg/datasets/kitti/',
                   img_size=imgsize,
                   augmentation=cfg['AUGMENTATION'],
                   debug=args.debug)
@@ -138,7 +138,7 @@ def main():
     #                 confthre=cfg['TEST']['CONFTHRE'],
     #                 nmsthre=cfg['TEST']['NMSTHRE'])
     evaluator = KITTIAPIEvaluator(model_type=cfg['MODEL']['TYPE'],
-                    data_dir='/home/zonepg/datasets/KITTI/',
+                    data_dir='/home/zonepg/datasets/kitti/',
                     img_size=cfg['TEST']['IMGSIZE'],
                     confthre=cfg['TEST']['CONFTHRE'],
                     nmsthre=cfg['TEST']['NMSTHRE'])

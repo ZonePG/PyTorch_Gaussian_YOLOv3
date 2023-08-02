@@ -22,6 +22,7 @@
             "args": [
                 "--cfg=config/gaussian_yolov3_kitti_default.cfg",
                 "--weights_path=weights/darknet53.conv.74",
+                // "--checkpoint=checkpoints-batch16/snapshot19000.ckpt",
                 "--n_cpu=8",
                 "--checkpoint_interval=1000",
                 "--eval_interval=4000",
