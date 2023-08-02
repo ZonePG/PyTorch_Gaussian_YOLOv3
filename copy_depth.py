@@ -5,8 +5,8 @@ import cv2
 def fill_idx(idx, len=6, ext=".jpg"):
     return str(idx).zfill(len) + ext
 
-src_path = "/home/zonepg/datasets/KITTI/JPEGImages_dense"
-dst_path = "/home/zonepg/datasets/KITTI/JPEGImages_depth"
+src_path = "/home/zonepg/datasets/kitti/JPEGImages_dense"
+dst_path = "/home/zonepg/datasets/kitti/JPEGImages_depth"
 
 os.makedirs(dst_path, exist_ok=True)
 

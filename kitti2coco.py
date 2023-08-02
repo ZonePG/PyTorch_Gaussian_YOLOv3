@@ -54,10 +54,10 @@ def main():
     args = parse_args()
 
     if args.depth:
-        src_path = "/home/zonepg/datasets/KITTI_depth"
+        src_path = "/home/zonepg/datasets/kitti_depth"
         src_images_path = os.path.join(src_path, "JPEGImages_depth")
     else:
-        src_path = "/home/zonepg/datasets/KITTI"
+        src_path = "/home/zonepg/datasets/kitti"
         src_images_path = os.path.join(src_path, "JPEGImages")
 
     train_dst_path = os.path.join(src_path, "train2017")
