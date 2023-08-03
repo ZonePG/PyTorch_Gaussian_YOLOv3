@@ -109,8 +109,8 @@ class MMKITTIDataset(Dataset):
         sized[dy:dy+nh, dx:dx+nw, :] = img1
         img1 = sized
 
-        cv2.imwrite('img0.jpg', img0)
-        cv2.imwrite('img1.jpg', img1)
+        # cv2.imwrite('img0.jpg', img0)
+        # cv2.imwrite('img1.jpg', img1)
 
         if self.random_distort:
             img0 = random_distort(img0, self.hue, self.saturation, self.exposure)
