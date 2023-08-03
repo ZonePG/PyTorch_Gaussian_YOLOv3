@@ -111,12 +111,12 @@ class MMKITTIAPIEvaluator():
 
         # Evaluate the Dt (detection) json comparing with the ground truth
         if len(data_dict) > 0:
-            cocoGt = self.dataset.coco
+            cocoGt = self.dataset.coco0
             # workaround: temporarily write data to json file because pycocotools can't process dict in py36.
             _, tmp = tempfile.mkstemp()
             json.dump(data_dict, open(tmp, 'w'))
             cocoDt = cocoGt.loadRes(tmp)
-            cocoEval = COCOeval(self.dataset.coco, cocoDt, annType[1])
+            cocoEval = COCOeval(self.dataset.coco0, cocoDt, annType[1])
             cocoEval.params.imgIds = ids
             cocoEval.evaluate()
             cocoEval.accumulate()
