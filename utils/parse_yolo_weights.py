@@ -123,3 +123,62 @@ def parse_yolo_weights(model, weights_path):
             offset, weights = parse_yolo_block(m, weights, offset, initflag)
 
         initflag = (offset >= len(weights)) # the end of the weights file. turn the flag on
+
+def parse_mmyolo_weights(model, weights_path):
+    """
+    Parse YOLO (darknet) pre-trained weights data onto the pytorch model
+    Args:
+        model : pytorch model object
+        weights_path (str): path to the YOLO (darknet) pre-trained weights file
+    """
+    fp = open(weights_path, "rb")
+
+    # skip the header
+    header = np.fromfile(fp, dtype=np.int32, count=5) # not used
+    # read weights 
+    weights0 = np.fromfile(fp, dtype=np.float32)
+    weights1 = np.copy(weights0)
+    fp.close()
+
+    offset = 0 
+    initflag = False #whole yolo weights : False, darknet weights : True
+
+    for m in model.module_list_0:
+
+        if m._get_name() == 'Sequential':
+            # normal conv block
+            offset, weights0 = parse_conv_block(m, weights0, offset, initflag)
+
+        elif m._get_name() == 'resblock':
+            # residual block
+            for modu in m._modules['module_list']:
+                for blk in modu:
+                    offset, weights0 = parse_conv_block(blk, weights0, offset, initflag)
+
+        elif m._get_name() == 'YOLOLayer':
+            # YOLO Layer (one conv with bias) Initialization
+            offset, weights0 = parse_yolo_block(m, weights0, offset, initflag)
+
+        initflag = (offset >= len(weights0)) # the end of the weights file. turn the flag on
+        
+    offset = 0 
+    initflag = False #whole yolo weights : False, darknet weights : True
+
+    for m in model.module_list_1:
+
+        if m._get_name() == 'Sequential':
+            # normal conv block
+            offset, weights1 = parse_conv_block(m, weights1, offset, initflag)
+
+        elif m._get_name() == 'resblock':
+            # residual block
+            for modu in m._modules['module_list']:
+                for blk in modu:
+                    offset, weights1 = parse_conv_block(blk, weights1, offset, initflag)
+
+        elif m._get_name() == 'YOLOLayer':
+            # YOLO Layer (one conv with bias) Initialization
+            offset, weights1 = parse_yolo_block(m, weights1, offset, initflag)
+
+        initflag = (offset >= len(weights1)) # the end of the weights file. turn the flag on
+

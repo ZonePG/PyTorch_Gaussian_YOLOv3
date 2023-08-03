@@ -4,10 +4,13 @@ from utils.utils import *
 from utils.seed import set_seed, setup_cudnn
 from utils.cocoapi_evaluator import COCOAPIEvaluator
 from utils.kittiapi_evaluator import KITTIAPIEvaluator
-from utils.parse_yolo_weights import parse_yolo_weights
+from utils.mmkittiapi_evaluator import MMKITTIAPIEvaluator
+from utils.parse_yolo_weights import parse_yolo_weights, parse_mmyolo_weights
 from models.yolov3 import *
+from models.mmyolov3 import MMYOLOv3
 from dataset.cocodataset import *
 from dataset.kittidataset import *
+from dataset.mmkittidataset import *
 
 import os
 import argparse
@@ -41,6 +44,8 @@ def parse_args():
                         help='debug mode where only one image is trained')
     parser.add_argument(
         '--tfboard_dir', help='tensorboard path for logging', type=str, default=None)
+    parser.add_argument(
+        '--multimodal', help='train with rgb and depth image', type=str, default=True)
     return parser.parse_args()
 
 
@@ -92,11 +97,18 @@ def main():
         return factor
 
     # Initiate model
-    model = YOLOv3(cfg['MODEL'], ignore_thre=ignore_thre)
+    if not args.multimodal:
+        model = YOLOv3(cfg['MODEL'], ignore_thre=ignore_thre)
+    else:
+        model = MMYOLOv3(cfg['MODEL'], ignore_thre=ignore_thre)
+    print(model)
 
     if args.weights_path:
         print("loading darknet weights....", args.weights_path)
-        parse_yolo_weights(model, args.weights_path)
+        if not args.multimodal:
+            parse_yolo_weights(model, args.weights_path)
+        else:
+            parse_mmyolo_weights(model, args.weights_path)
     elif args.checkpoint:
         print("loading pytorch ckpt...", args.checkpoint)
         state = torch.load(args.checkpoint)
@@ -122,26 +134,42 @@ def main():
     #               img_size=imgsize,
     #               augmentation=cfg['AUGMENTATION'],
     #               debug=args.debug)
-    dataset = KITTIDataset(model_type=cfg['MODEL']['TYPE'],
-                  data_dir='/home/zonepg/datasets/kitti/',
-                  img_size=imgsize,
-                  augmentation=cfg['AUGMENTATION'],
-                  debug=args.debug)
+    if not args.multimodal:
+        dataset = KITTIDataset(model_type=cfg['MODEL']['TYPE'],
+                    data_dir='/home/zonepg/datasets/kitti/',
+                    img_size=imgsize,
+                    augmentation=cfg['AUGMENTATION'],
+                    debug=args.debug)
+    else:
+        dataset = MMKITTIDataset(model_type=cfg['MODEL']['TYPE'],
+                    data_dir0='/home/zonepg/datasets/kitti/',
+                    data_dir1='/home/zonepg/datasets/kitti_depth/',
+                    img_size=imgsize,
+                    augmentation=cfg['AUGMENTATION'],
+                    debug=args.debug)
 
     dataloader = torch.utils.data.DataLoader(
         dataset, batch_size=batch_size, shuffle=True, num_workers=args.n_cpu)
     dataiterator = iter(dataloader)
 
-    # evaluator = COCOAPIEvaluator(model_type=cfg['MODEL']['TYPE'],
-    #                 data_dir='/home/zonepg/datasets/coco/',
-    #                 img_size=cfg['TEST']['IMGSIZE'],
-    #                 confthre=cfg['TEST']['CONFTHRE'],
-    #                 nmsthre=cfg['TEST']['NMSTHRE'])
-    evaluator = KITTIAPIEvaluator(model_type=cfg['MODEL']['TYPE'],
-                    data_dir='/home/zonepg/datasets/kitti/',
-                    img_size=cfg['TEST']['IMGSIZE'],
-                    confthre=cfg['TEST']['CONFTHRE'],
-                    nmsthre=cfg['TEST']['NMSTHRE'])
+    if not args.multimodal:
+        # evaluator = COCOAPIEvaluator(model_type=cfg['MODEL']['TYPE'],
+        #                 data_dir='/home/zonepg/datasets/coco/',
+        #                 img_size=cfg['TEST']['IMGSIZE'],
+        #                 confthre=cfg['TEST']['CONFTHRE'],
+        #                 nmsthre=cfg['TEST']['NMSTHRE'])
+        evaluator = KITTIAPIEvaluator(model_type=cfg['MODEL']['TYPE'],
+                        data_dir='/home/zonepg/datasets/kitti/',
+                        img_size=cfg['TEST']['IMGSIZE'],
+                        confthre=cfg['TEST']['CONFTHRE'],
+                        nmsthre=cfg['TEST']['NMSTHRE'])
+    else:
+        evaluator = MMKITTIAPIEvaluator(model_type=cfg['MODEL']['TYPE'],
+                        data_dir0='/home/zonepg/datasets/kitti/',
+                        data_dir1='/home/zonepg/datasets/kitti_depth/',
+                        img_size=cfg['TEST']['IMGSIZE'],
+                        confthre=cfg['TEST']['CONFTHRE'],
+                        nmsthre=cfg['TEST']['NMSTHRE'])
 
     device = torch.device("cuda" if cuda else "cpu")
 
@@ -187,15 +215,27 @@ def main():
         # subdivision loop
         optimizer.zero_grad()
         for inner_iter_i in range(subdivision):
-            try:
-                imgs, targets, _, ids = next(dataiterator)  # load a batch
-            except StopIteration:
-                dataiterator = iter(dataloader)
-                imgs, targets, _, ids = next(dataiterator)  # load a batch
-            imgs = imgs.to(device)
-            targets = targets.to(device)
-            loss = model(imgs, targets)
-            loss.backward()
+            if not args.multimodal:
+                try:
+                    imgs, targets, _, ids = next(dataiterator)  # load a batch
+                except StopIteration:
+                    dataiterator = iter(dataloader)
+                    imgs, targets, _, ids = next(dataiterator)  # load a batch
+                imgs = imgs.to(device)
+                targets = targets.to(device)
+                loss = model(imgs, targets)
+                loss.backward()
+            else:
+                try:
+                    imgs0, imgs1, targets, _, ids = next(dataiterator)  # load a batch
+                except StopIteration:
+                    dataiterator = iter(dataloader)
+                    imgs0, imgs1, targets, _, ids = next(dataiterator)  # load a batch
+                imgs0 = imgs0.to(device)
+                imgs1 = imgs1.to(device)
+                targets = targets.to(device)
+                loss = model(imgs0, imgs1, targets)
+                loss.backward()
 
         if gradient_clip >= 0:
             torch.nn.utils.clip_grad_norm_(model.parameters(), gradient_clip)
