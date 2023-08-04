@@ -45,7 +45,7 @@ def parse_args():
     parser.add_argument(
         '--tfboard_dir', help='tensorboard path for logging', type=str, default=None)
     parser.add_argument(
-        '--multimodal', help='train with rgb and depth image', type=str, default=True)
+        '--multimodal', type=bool, default=False, help='train with rgb and depth image')
     return parser.parse_args()
 
 
