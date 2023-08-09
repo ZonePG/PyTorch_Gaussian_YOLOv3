@@ -13,7 +13,27 @@
             "justMyCode": true
         },
         {
-            "name": "Python: train",
+            "name": "Python: train no gaussian rgb",
+            "type": "python",
+            "request": "launch",
+            "program": "train.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": [
+                "--cfg=config/yolov3_kitti_default.cfg",
+                // "--weights_path=weights/darknet53.conv.74",
+                "--checkpoint=checkpoints-batch8-no-gaussian/snapshot50000.ckpt",
+                "--n_cpu=8",
+                "--checkpoint_interval=1000",
+                "--eval_interval=4000",
+                "--tfboard_dir=./log",
+                "--checkpoint_dir=./checkpoints-batch8-no-gaussian",
+                // "--multimodal",
+                // "--debug"
+            ]
+        },
+        {
+            "name": "Python: train gaussian rgb",
             "type": "python",
             "request": "launch",
             "program": "train.py",
@@ -21,12 +41,32 @@
             "justMyCode": true,
             "args": [
                 "--cfg=config/gaussian_yolov3_kitti_default.cfg",
-                "--weights_path=weights/darknet53.conv.74",
-                // "--checkpoint=checkpoints-batch16/snapshot19000.ckpt",
+                // "--weights_path=weights/darknet53.conv.74",
+                "--checkpoint=checkpoints-batch8/snapshot28000.ckpt",
                 "--n_cpu=8",
                 "--checkpoint_interval=1000",
                 "--eval_interval=4000",
                 "--tfboard_dir=./log",
+                // "--multimodal",
+                // "--debug"
+            ]
+        },
+        {
+            "name": "Python: train gaussian mm",
+            "type": "python",
+            "request": "launch",
+            "program": "train.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": [
+                "--cfg=config/gaussian_yolov3_kitti_default.cfg",
+                // "--weights_path=weights/darknet53.conv.74",
+                "--checkpoint=checkpoints-batch8-mm/snapshot28000.ckpt",
+                "--n_cpu=8",
+                "--checkpoint_interval=1000",
+                "--eval_interval=4000",
+                "--tfboard_dir=./log",
+                "--multimodal",
                 // "--debug"
             ]
         }
