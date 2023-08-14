@@ -69,6 +69,26 @@
                 "--multimodal",
                 // "--debug"
             ]
+        },
+        {
+            "name": "Python: train gaussian kitti_final",
+            "type": "python",
+            "request": "launch",
+            "program": "train.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": [
+                "--cfg=config/gaussian_yolov3_kitti_default.cfg",
+                "--weights_path=weights/darknet53.conv.74",
+                // "--checkpoint=checkpoints-batch8-mm/snapshot28000.ckpt",
+                "--n_cpu=8",
+                "--checkpoint_interval=1000",
+                "--eval_interval=4000",
+                "--tfboard_dir=./log",
+                "--checkpoint_dir=./checkpoints-kitti_final-batch8-gaussian",
+                // "--multimodal",
+                // "--debug"
+            ]
         }
     ]
 }
