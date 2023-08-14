@@ -55,10 +55,10 @@ def main():
 
     if args.depth:
         src_path = "/home/zonepg/datasets/kitti_depth"
-        src_images_path = os.path.join(src_path, "JPEGImages_depth")
+        src_images_path = os.path.join(src_path, "images")
     else:
         src_path = "/home/zonepg/datasets/kitti"
-        src_images_path = os.path.join(src_path, "JPEGImages")
+        src_images_path = os.path.join(src_path, "images")
 
     train_dst_path = os.path.join(src_path, "train2017")
     val_dst_path = os.path.join(src_path, "val2017")
@@ -78,11 +78,11 @@ def main():
         stage_file_list = open(stage_path, "r").readlines()
         stage_file_list = [file.strip() for file in stage_file_list]
         # copy image
-        # for file in stage_file_list:
-        #     src_file = os.path.join(src_images_path, file + ".jpg")
-        #     image = cv2.imread(src_file)
-        #     dst_file = os.path.join(src_path, stage + "2017", file + ".jpg")
-        #     cv2.imwrite(dst_file, image)
+        for file in stage_file_list:
+            src_file = os.path.join(src_images_path, file + ".jpg")
+            image = cv2.imread(src_file)
+            dst_file = os.path.join(src_path, stage + "2017", file + ".jpg")
+            cv2.imwrite(dst_file, image)
 
         # make annotation
         label2cocojson(stage_file_list, stage, anno_path, label_path, src_images_path)
