@@ -46,6 +46,9 @@ def parse_args():
         '--tfboard_dir', help='tensorboard path for logging', type=str, default=None)
     parser.add_argument(
         '--multimodal', action='store_true', default=False, help='train with rgb and depth image')
+    parser.add_argument('--data_dir', type=str,
+                        required=True,
+                        help='directory where rgb datasets are saved')
     return parser.parse_args()
 
 
@@ -136,13 +139,13 @@ def main():
     #               debug=args.debug)
     if not args.multimodal:
         dataset = KITTIDataset(model_type=cfg['MODEL']['TYPE'],
-                    data_dir='/home/zonepg/datasets/kitti/',
+                    data_dir=args.data_dir,
                     img_size=imgsize,
                     augmentation=cfg['AUGMENTATION'],
                     debug=args.debug)
     else:
         dataset = MMKITTIDataset(model_type=cfg['MODEL']['TYPE'],
-                    data_dir0='/home/zonepg/datasets/kitti/',
+                    data_dir0=args.data_dir,
                     data_dir1='/home/zonepg/datasets/kitti_depth/',
                     img_size=imgsize,
                     augmentation=cfg['AUGMENTATION'],
@@ -159,13 +162,13 @@ def main():
         #                 confthre=cfg['TEST']['CONFTHRE'],
         #                 nmsthre=cfg['TEST']['NMSTHRE'])
         evaluator = KITTIAPIEvaluator(model_type=cfg['MODEL']['TYPE'],
-                        data_dir='/home/zonepg/datasets/kitti/',
+                        data_dir=args.data_dir,
                         img_size=cfg['TEST']['IMGSIZE'],
                         confthre=cfg['TEST']['CONFTHRE'],
                         nmsthre=cfg['TEST']['NMSTHRE'])
     else:
         evaluator = MMKITTIAPIEvaluator(model_type=cfg['MODEL']['TYPE'],
-                        data_dir0='/home/zonepg/datasets/kitti/',
+                        data_dir0=args.data_dir,
                         data_dir1='/home/zonepg/datasets/kitti_depth/',
                         img_size=cfg['TEST']['IMGSIZE'],
                         confthre=cfg['TEST']['CONFTHRE'],
