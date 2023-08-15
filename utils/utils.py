@@ -380,3 +380,17 @@ def get_coco_label_names():
         coco_cls_colors = np.append(coco_cls_colors, rgb[None, :], axis=0)
 
     return coco_label_names, coco_class_ids, coco_cls_colors
+
+def get_kitti_label_names():
+    kitti_label_names = ('background', 'Car', 'Cyclist', 'Pedestrian')
+    kitti_class_ids = [1, 2, 3]
+
+    kitti_cls_colors = np.empty(shape=(0, 3), dtype=np.int)
+    palette = sns.color_palette(n_colors=len(kitti_class_ids))
+    for color in palette:
+        r, g, b = color[0] * 255, color[1] * 255, color[2] * 255
+        rgb = np.array([int(r), int(g), int(b)])
+        kitti_cls_colors = np.append(kitti_cls_colors, rgb[None, :], axis=0)
+
+    return kitti_label_names, kitti_class_ids, kitti_cls_colors
+
