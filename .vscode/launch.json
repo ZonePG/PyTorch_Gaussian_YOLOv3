@@ -33,7 +33,7 @@
             ]
         },
         {
-            "name": "Python: train gaussian rgb",
+            "name": "Python: train gaussian origin rgb",
             "type": "python",
             "request": "launch",
             "program": "train.py",
@@ -41,12 +41,14 @@
             "justMyCode": true,
             "args": [
                 "--cfg=config/gaussian_yolov3_kitti_default.cfg",
-                // "--weights_path=weights/darknet53.conv.74",
-                "--checkpoint=checkpoints-batch8/snapshot28000.ckpt",
+                "--weights_path=weights/darknet53.conv.74",
+                // "--checkpoint=checkpoints-batch8/snapshot28000.ckpt",
                 "--n_cpu=8",
                 "--checkpoint_interval=1000",
                 "--eval_interval=4000",
                 "--tfboard_dir=./log",
+                "--checkpoint_dir=./checkpoints-origin-rgb-batch8-gaussian",
+                "--data_dir=/home/zonepg/datasets/kitti/",
                 // "--multimodal",
                 // "--debug"
             ]
@@ -80,7 +82,7 @@
             "args": [
                 "--cfg=config/gaussian_yolov3_kitti_default.cfg",
                 "--weights_path=weights/darknet53.conv.74",
-                // "--checkpoint=checkpoints-batch8-mm/snapshot28000.ckpt",
+                // "--checkpoint=checkpoints-kitti_final-batch8-gaussian/snapshot24000.ckpt",
                 "--n_cpu=8",
                 "--checkpoint_interval=1000",
                 "--eval_interval=4000",
@@ -122,7 +124,7 @@
             "args": [
                 "--cfg=config/gaussian_yolov3_kitti_default.cfg",
                 "--weights_path=weights/darknet53.conv.74",
-                // "--checkpoint=checkpoints-batch8-mm/snapshot28000.ckpt",
+                // "--checkpoint=checkpoints-kitti_low_0.2_noise-batch8-gaussian/snapshot24000.ckpt",
                 "--n_cpu=8",
                 "--checkpoint_interval=1000",
                 "--eval_interval=4000",
