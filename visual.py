@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 cfg_path = './config/gaussian_yolov3_kitti_eval.cfg'
 
 # Specify checkpoint file which contains the weight of the model you want to use
-ckpt_path = './checkpoints-kitti_final-batch8-gaussian/snapshot25000.ckpt'
+ckpt_path = './checkpoints-kitti_final-batch8-gaussian/snapshot50000.ckpt'
 
 # Path to the image file fo the demo
 # image_path = './data/gaussian_yolov3/traffic_1.jpg'

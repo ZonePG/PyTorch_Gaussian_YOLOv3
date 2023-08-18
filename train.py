@@ -203,6 +203,7 @@ def main():
         # COCO evaluation
         # if iter_i % args.eval_interval == 0 and False:
         if iter_i % args.eval_interval == 0:
+        # if True:
             print('evaluating...')
             ap = evaluator.evaluate(model)
             model.train()
