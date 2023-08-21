@@ -10,7 +10,10 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
-            "justMyCode": true
+            "justMyCode": true,
+            "env": {
+                "CUDA_VISIBLE_DEVICE": "2"
+            }
         },
         {
             "name": "Python: train no gaussian rgb",
@@ -154,7 +157,22 @@
                 "--data_dir=/home/zonepg/datasets/kitti_low_0.2_noise/",
                 "--multimodal",
                 // "--debug"
-            ]
-        }
+            ],
+        },
+        {
+            "name": "Python: visualize.py",
+            "type": "python",
+            "request": "launch",
+            "program": "visualize.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": [
+                "--exp_name=kitti_final-mm",
+                "--multimodal"
+            ],
+            "env": {
+                "CUDA_VISIBLE_DEVICE": "2"
+            }
+        },
     ]
 }
